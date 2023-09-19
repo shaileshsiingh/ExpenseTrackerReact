@@ -1,16 +1,13 @@
 import React, { useState, useRef } from 'react';
-// import AuthContext from '../../store/auth-context';
 import classes from './Authentication.module.css';
 
 const Authentication = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
 
-//   const authCtx = useContext(AuthContext);
-
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
-  const confirmInputRef = useRef();
+  let confirmInputRef = null; // Declare confirmInputRef initially as null
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -21,21 +18,26 @@ const Authentication = () => {
 
     const enteredEmail = emailInputRef.current.value;
     const enteredPassword = passwordInputRef.current.value;
-    const enteredConfirmPassword = confirmInputRef.current.value;
 
     setLoading(true);
 
-    if (!isLogin && enteredPassword !== enteredConfirmPassword) {
-      alert('Passwords do not match. Please try again.');
-      setLoading(false);
-      return;
+    if (!isLogin) {
+      // Only create confirmInputRef when in sign-up mode
+      confirmInputRef = confirmInputRef || document.getElementById('confirmPassword');
+      const enteredConfirmPassword = confirmInputRef.value;
+
+      if (enteredPassword !== enteredConfirmPassword) {
+        alert('Passwords do not match. Please try again.');
+        setLoading(false);
+        return;
+      }
     }
 
     try {
       const response = await fetch(
         isLogin
-          ? 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyCipmPxx-C8SxvVI6SQNJ1aChk38b5Z7n0'
-          : 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyCipmPxx-C8SxvVI6SQNJ1aChk38b5Z7n0',
+          ? 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAJZVlkJOe9LtVdhe7_OVHR62Ml-5IlnRo'
+          : 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAJZVlkJOe9LtVdhe7_OVHR62Ml-5IlnRo',
         {
           method: 'POST',
           headers: {
@@ -53,6 +55,8 @@ const Authentication = () => {
       if (!response.ok) {
         alert(data.error.message);
       }
+      alert("Logged In");
+      console.log("Logged In Successfully")
 
       setLoading(false);
     } catch (error) {
@@ -81,7 +85,7 @@ const Authentication = () => {
               type='password'
               id='confirmPassword'
               required
-              ref={confirmInputRef}
+              ref={(input) => (confirmInputRef = input)} // Assign confirmInputRef when in sign-up mode
             />
           </div>
         )}
