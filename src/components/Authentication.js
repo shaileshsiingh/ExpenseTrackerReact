@@ -1,13 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext } from 'react';
 import classes from './Authentication.module.css';
+import AuthContext from '../store/auth-context';
 
 const Authentication = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState(''); // Controlled component for confirmPassword
+  const authCtx = useContext(AuthContext);
 
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
-  let confirmInputRef = null; // Declare confirmInputRef initially as null
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -22,11 +24,7 @@ const Authentication = () => {
     setLoading(true);
 
     if (!isLogin) {
-      // Only create confirmInputRef when in sign-up mode
-      confirmInputRef = confirmInputRef || document.getElementById('confirmPassword');
-      const enteredConfirmPassword = confirmInputRef.value;
-
-      if (enteredPassword !== enteredConfirmPassword) {
+      if (enteredPassword !== confirmPassword) {
         alert('Passwords do not match. Please try again.');
         setLoading(false);
         return;
@@ -55,8 +53,11 @@ const Authentication = () => {
       if (!response.ok) {
         alert(data.error.message);
       }
+
       alert("Logged In");
-      console.log("Logged In Successfully")
+      console.log("Logged In Successfully");
+      authCtx.logIn(data.idToken)
+      console.log(data);
 
       setLoading(false);
     } catch (error) {
@@ -85,7 +86,8 @@ const Authentication = () => {
               type='password'
               id='confirmPassword'
               required
-              ref={(input) => (confirmInputRef = input)} // Assign confirmInputRef when in sign-up mode
+              value={confirmPassword}
+              onChange={(event) => setConfirmPassword(event.target.value)}
             />
           </div>
         )}
@@ -101,7 +103,7 @@ const Authentication = () => {
             className={classes.toggle}
             onClick={switchAuthModeHandler}
           >
-            {isLogin ? 'Create new account' : 'Login with existing account'}
+            {isLogin ? 'Create new account' : 'Login with an existing account'}
           </button>
         </div>
       </form>
