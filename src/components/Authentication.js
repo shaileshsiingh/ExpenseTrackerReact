@@ -1,12 +1,14 @@
 import React, { useState, useRef, useContext } from 'react';
 import classes from './Authentication.module.css';
 import AuthContext from '../store/auth-context';
+import { useNavigate } from 'react-router-dom';
 
 const Authentication = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState(''); // Controlled component for confirmPassword
   const authCtx = useContext(AuthContext);
+  let history = useNavigate()
 
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -57,6 +59,8 @@ const Authentication = () => {
       alert("Logged In");
       console.log("Logged In Successfully");
       authCtx.logIn(data.idToken)
+      history('/')
+      
       console.log(data);
 
       setLoading(false);
