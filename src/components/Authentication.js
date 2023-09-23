@@ -1,7 +1,7 @@
 import React, { useState, useRef, useContext } from 'react';
 import classes from './Authentication.module.css';
 import AuthContext from '../store/auth-context';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const Authentication = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -96,6 +96,8 @@ const Authentication = () => {
           </div>
         )}
         <div className={classes.actions}>
+        {isLogin && <Link className={classes.forget} to='/reset'>Forgot Password ?</Link>}
+
           {!loading && (
             <button type='submit'>
               {isLogin ? 'Login' : 'Create a new account'}

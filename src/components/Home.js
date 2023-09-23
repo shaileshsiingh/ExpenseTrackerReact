@@ -23,6 +23,7 @@ const verifyEmailHandler=(e)=>{
         const data=res.json();
         data.then((resp)=>{
             console.log(resp);
+            alert("Check your email , you might have recieved a verification link . Click on it to verify.")
         })
     }).catch((err)=>{
         console.log('err',err)
@@ -39,20 +40,24 @@ const verifyEmailHandler=(e)=>{
 
   return (
     <>
-    <div>
-      <h1>Welcome</h1>
-     
-            <div >
-                Your profile is incomplete.<Link to='/completeprofile'>Complete now</Link>
-            </div>
+      <div>
+        <h1>Welcome</h1>
+        <div>
+          Your profile is incomplete. <Link to="/completeprofile">Complete now</Link>
         </div>
-        <button type='submit' onClick={verifyEmailHandler} >Verify Email</button>
-      {authCtx.isLoggedIn && (
+      </div>
+      <button type="submit" onClick={verifyEmailHandler}>
+        Verify Email
+      </button>
+      {authCtx.isLoggedIn ? (
         <button onClick={logoutHandler}>Log Out</button>
+      ) : (
+        <>
+          <Link to="/authentication">Login</Link>
+        </>
       )}
-
     </>
   );
-}
+      }
 
 export default Home;
