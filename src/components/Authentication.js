@@ -36,8 +36,8 @@ const Authentication = () => {
     try {
       const response = await fetch(
         isLogin
-          ? 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyAJZVlkJOe9LtVdhe7_OVHR62Ml-5IlnRo'
-          : 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyAJZVlkJOe9LtVdhe7_OVHR62Ml-5IlnRo',
+          ? 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyBfLmb22jB_vs7p6YsU4HJXnGiDP7Ftw9o'
+          : 'https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyBfLmb22jB_vs7p6YsU4HJXnGiDP7Ftw9o',
         {
           method: 'POST',
           headers: {
