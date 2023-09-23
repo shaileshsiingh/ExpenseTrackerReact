@@ -27,11 +27,16 @@ export const AuthContextProvider = (props) => {
     localStorage.removeItem('token')
   };
 
+  
+  const verificationHandler=()=>{
+
+  }
   const contextValue = {
     token: token,
     isLoggedIn: userLoggedIn,
     logIn: loginHandler,
-    logOut: logoutHandler
+    logOut: logoutHandler,
+    verification : verificationHandler
   };
 
   return (
