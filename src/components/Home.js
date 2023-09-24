@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import AuthContext from '../store/auth-context';
 import { Link, useNavigate } from 'react-router-dom';
+import Expense from './Expense';
 
 function Home() {
   const authCtx = useContext(AuthContext);
@@ -56,6 +57,7 @@ const verifyEmailHandler=(e)=>{
           <Link to="/authentication">Login</Link>
         </>
       )}
+      <Expense/>
     </>
   );
       }

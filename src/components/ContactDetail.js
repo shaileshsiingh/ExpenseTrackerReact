@@ -1,5 +1,4 @@
 import React, { Fragment, useContext, useEffect, useState } from 'react';
-import classes from './ContactDetail.module.css';
 import AuthContext from '../store/auth-context';
 
 const ContactDetail = () => {
@@ -66,6 +65,7 @@ const ContactDetail = () => {
           alert(resp.error.message);
         } else {
           console.log('Response:', resp);
+          alert("Updated")
         }
       })
       .catch((err) => {
@@ -79,25 +79,25 @@ const ContactDetail = () => {
 
   return (
     <Fragment>
-      <form className={classes.main}>
-        <div className={classes.header}>
-          <div className={classes.ContactDetail}>Contact Details</div>
-          <button className={classes.cancel}>Cancel</button>
+      <form >
+        <div >
+          <div >Contact Details</div>
+          <button >Cancel</button>
         </div>
-        <div className={classes.input}>
-          <div className={classes.left}>
-            <div className={classes.fullName}>Full Name : </div>
+        <div >
+          <div >
+            <div >Full Name : </div>
             <input type="text" onChange={nameChangeHandler} value={name} />
           </div>
-          <div className={classes.right}>
-            <div className={classes.photourl}>Profile Photo url : </div>
+          <div >
+            <div >Profile Photo url : </div>
             <input type="text" onChange={imgUrlChangeHandler} value={imgUrl} />
           </div>
         </div>
-        <button className={classes.update} type="submit" onClick={submitHandler}>
+        <button  type="submit" onClick={submitHandler}>
           Update
         </button>
-        <div className={classes.line}></div>
+        <div ></div>
       </form>
     </Fragment>
   );
