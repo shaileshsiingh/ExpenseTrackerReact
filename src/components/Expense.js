@@ -6,6 +6,7 @@ const Expense = () => {
   const [item, setItem] = useState('');
   const [category, setCategory] = useState('');
   const [products, setProducts] = useState([]);
+  const [editingId, setEditingId] = useState(null); // Track the ID of the item being edited
 
   useEffect(() => {
     fetchProducts();
@@ -35,10 +36,22 @@ const Expense = () => {
     }
   };
 
+  const handleEditClick = (productId) => {
+    // Set the ID of the item being edited
+    setEditingId(productId);
+
+    // Find the item being edited and populate the form fields
+    const editedProduct = products.find((product) => product.id === productId);
+    setPrice(editedProduct.price);
+    setDescription(editedProduct.description);
+    setItem(editedProduct.item);
+    setCategory(editedProduct.category);
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if ( price && item && category) {
-      const newProduct = {
+    if (price && description && item && category) {
+      const editedProduct = {
         price,
         description,
         item,
@@ -46,27 +59,45 @@ const Expense = () => {
       };
 
       try {
-        const response = await fetch('https://newblog-20727-default-rtdb.firebaseio.com/products.json', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(newProduct),
-        });
+        if (editingId) {
+          // Update existing item
+          const response = await fetch(`https://newblog-20727-default-rtdb.firebaseio.com/products/${editingId}.json`, {
+            method: 'PUT', // Use PUT to update the existing item
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(editedProduct),
+          });
 
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
+        } else {
+          // Add a new item
+          const response = await fetch('https://newblog-20727-default-rtdb.firebaseio.com/products.json', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(editedProduct),
+          });
+
+          if (!response.ok) {
+            throw new Error('Network response was not ok');
+          }
         }
 
-        // Refresh the product list after successful POST
+        // Refresh the product list after successful POST or PUT
         fetchProducts();
 
+        // Clear the form and editing ID
         setPrice('');
         setDescription('');
         setItem('');
         setCategory('');
+        setEditingId(null);
       } catch (error) {
-        console.error('Error posting data:', error);
+        console.error('Error updating data:', error);
       }
     }
   };
@@ -91,17 +122,14 @@ const Expense = () => {
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        
-
         <label htmlFor="price">Price:</label>
         <input type="number" id="price" name="price" required value={price} onChange={(e) => setPrice(e.target.value)} />
 
-        <label htmlFor="item">Item:</label>
-        <input type="text" id="item" name="item" required value={item} onChange={(e) => setItem(e.target.value)} />
-
-<label htmlFor="description">Description:</label>
+        <label htmlFor="description">Description:</label>
         <input type="text" id="description" name="description" required value={description} onChange={(e) => setDescription(e.target.value)} />
 
+        <label htmlFor="item">Item:</label>
+        <input type="text" id="item" name="item" required value={item} onChange={(e) => setItem(e.target.value)} />
 
         <label htmlFor="category">Category:</label>
         <select
@@ -117,7 +145,7 @@ const Expense = () => {
           <option value="Skincare">Skincare</option>
         </select>
 
-        <input type="submit" value="Submit" />
+        <input type="submit" value={editingId ? 'Update' : 'Submit'} />
       </form>
 
       <h1>Products</h1>
@@ -125,7 +153,12 @@ const Expense = () => {
       <ul>
         {products.map((product) => (
           <li key={product.id}>
-             Price: {product.price} - Description: {product.description} - Item: {product.item} - Category: {product.category}
+            Price: {product.price} - Description: {product.description} - Item: {product.item} - Category: {product.category}
+            {editingId !== product.id ? (
+              <button className="edit-btn" onClick={() => handleEditClick(product.id)}>
+                Edit
+              </button>
+            ) : null}
             <button className="delete-btn" onClick={() => handleDelete(product.id)}>
               Delete
             </button>
