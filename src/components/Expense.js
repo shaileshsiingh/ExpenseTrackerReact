@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 
 const Expense = () => {
-  const [id, setId] = useState('');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState('');
   const [item, setItem] = useState('');
@@ -9,51 +8,100 @@ const Expense = () => {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
-    const storedProducts = JSON.parse(localStorage.getItem('products')) || [];
-    setProducts(storedProducts);
+    fetchProducts();
   }, []);
 
-  const handleSubmit = (event) => {
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('https://newblog-20727-default-rtdb.firebaseio.com/products.json');
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const data = await response.json();
+
+      if (data) {
+        const productArray = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setProducts(productArray);
+      } else {
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    if (id && price && item && category) {
+    if ( price && item && category) {
       const newProduct = {
-        id,
         price,
         description,
         item,
         category,
       };
-      const updatedProducts = [...products, newProduct];
-      localStorage.setItem('products', JSON.stringify(updatedProducts));
-      setProducts(updatedProducts);
-      setId('');
-      setPrice('');
-      setDescription('');
-      setItem('');
-      setCategory('');
+
+      try {
+        const response = await fetch('https://newblog-20727-default-rtdb.firebaseio.com/products.json', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newProduct),
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        // Refresh the product list after successful POST
+        fetchProducts();
+
+        setPrice('');
+        setDescription('');
+        setItem('');
+        setCategory('');
+      } catch (error) {
+        console.error('Error posting data:', error);
+      }
     }
   };
 
-  const handleDelete = (productId) => {
-    const updatedProducts = products.filter((product) => product.id !== productId);
-    localStorage.setItem('products', JSON.stringify(updatedProducts));
-    setProducts(updatedProducts);
+  const handleDelete = async (productId) => {
+    try {
+      const response = await fetch(`https://newblog-20727-default-rtdb.firebaseio.com/products/${productId}.json`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      // Refresh the product list after successful DELETE
+      fetchProducts();
+    } catch (error) {
+      console.error('Error deleting data:', error);
+    }
   };
 
   return (
     <div>
       <form onSubmit={handleSubmit}>
-        <label htmlFor="id">ID:</label>
-        <input type="number" id="id" name="id" required value={id} onChange={(e) => setId(e.target.value)} />
+        
 
         <label htmlFor="price">Price:</label>
         <input type="number" id="price" name="price" required value={price} onChange={(e) => setPrice(e.target.value)} />
 
-        <label htmlFor="description">Description:</label>
-        <input type="text" id="description" name="description" required value={description} onChange={(e) => setDescription(e.target.value)} />
-
         <label htmlFor="item">Item:</label>
         <input type="text" id="item" name="item" required value={item} onChange={(e) => setItem(e.target.value)} />
+
+<label htmlFor="description">Description:</label>
+        <input type="text" id="description" name="description" required value={description} onChange={(e) => setDescription(e.target.value)} />
+
 
         <label htmlFor="category">Category:</label>
         <select
@@ -74,55 +122,15 @@ const Expense = () => {
 
       <h1>Products</h1>
 
-      <h3>Electronics</h3>
       <ul>
-        {products.map((product) => {
-          if (product.category === 'Electronics') {
-            return (
-              <li key={product.id}>
-                ID: {product.id} - Rs{product.price} - {product.description} - {product.item}
-                <button className="delete-btn" onClick={() => handleDelete(product.id)}>
-                  Delete
-                </button>
-              </li>
-            );
-          }
-          return null;
-        })}
-      </ul>
-
-      <h3>Food</h3>
-      <ul>
-        {products.map((product) => {
-          if (product.category === 'Food') {
-            return (
-              <li key={product.id}>
-                ID: {product.id} - Rs{product.price} - {product.description} - {product.item}
-                <button className="delete-btn" onClick={() => handleDelete(product.id)}>
-                  Delete
-                </button>
-              </li>
-            );
-          }
-          return null;
-        })}
-      </ul>
-
-      <h3>Skincare</h3>
-      <ul>
-        {products.map((product) => {
-          if (product.category === 'Skincare') {
-            return (
-              <li key={product.id}>
-                ID: {product.id} - Rs{product.price} - {product.description} - {product.item}
-                <button className="delete-btn" onClick={() => handleDelete(product.id)}>
-                  Delete
-                </button>
-              </li>
-            );
-          }
-          return null;
-        })}
+        {products.map((product) => (
+          <li key={product.id}>
+             Price: {product.price} - Description: {product.description} - Item: {product.item} - Category: {product.category}
+            <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+              Delete
+            </button>
+          </li>
+        ))}
       </ul>
     </div>
   );
