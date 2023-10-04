@@ -1,14 +1,17 @@
-import React, { useState, useRef, useContext } from 'react';
+import React, { useState, useRef } from 'react';
 import classes from './Authentication.module.css';
-import AuthContext from '../store/auth-context';
+// import AuthContext from '../store/auth-context';
 import { useNavigate, Link } from 'react-router-dom';
+import { authAction } from '../store1/authReducer';
+import { useDispatch } from 'react-redux';
 
 const Authentication = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [loading, setLoading] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState(''); // Controlled component for confirmPassword
-  const authCtx = useContext(AuthContext);
+  // const authCtx = useContext(AuthContext);
   let history = useNavigate()
+  let dispatch = useDispatch()
 
   const emailInputRef = useRef();
   const passwordInputRef = useRef();
@@ -58,7 +61,7 @@ const Authentication = () => {
 
       alert("Logged In");
       console.log("Logged In Successfully");
-      authCtx.logIn(data.idToken)
+      dispatch(authAction.login(data.idToken))
       history('/')
       
       console.log(data);

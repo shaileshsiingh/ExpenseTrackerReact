@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { expAction } from '../store1/expenseReducer';
 
 const Expense = () => {
   const [price, setPrice] = useState('');
@@ -6,7 +8,9 @@ const Expense = () => {
   const [item, setItem] = useState('');
   const [category, setCategory] = useState('');
   const [products, setProducts] = useState([]);
-  const [editingId, setEditingId] = useState(null); // Track the ID of the item being edited
+  const [editingId, setEditingId] = useState(null);
+  const dispatch = useDispatch();
+  const expenses = useSelector((state) => state.exp.expenses) || []; // Provide an empty array as the initial value
 
   useEffect(() => {
     fetchProducts();
@@ -28,6 +32,8 @@ const Expense = () => {
           ...data[key],
         }));
         setProducts(productArray);
+
+        dispatch(expAction.addItemHandler(productArray));
       } else {
         setProducts([]);
       }
@@ -37,10 +43,8 @@ const Expense = () => {
   };
 
   const handleEditClick = (productId) => {
-    // Set the ID of the item being edited
     setEditingId(productId);
 
-    // Find the item being edited and populate the form fields
     const editedProduct = products.find((product) => product.id === productId);
     setPrice(editedProduct.price);
     setDescription(editedProduct.description);
@@ -60,9 +64,8 @@ const Expense = () => {
 
       try {
         if (editingId) {
-          // Update existing item
           const response = await fetch(`https://newblog-20727-default-rtdb.firebaseio.com/products/${editingId}.json`, {
-            method: 'PUT', // Use PUT to update the existing item
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
             },
@@ -73,7 +76,6 @@ const Expense = () => {
             throw new Error('Network response was not ok');
           }
         } else {
-          // Add a new item
           const response = await fetch('https://newblog-20727-default-rtdb.firebaseio.com/products.json', {
             method: 'POST',
             headers: {
@@ -87,10 +89,8 @@ const Expense = () => {
           }
         }
 
-        // Refresh the product list after successful POST or PUT
         fetchProducts();
 
-        // Clear the form and editing ID
         setPrice('');
         setDescription('');
         setItem('');
@@ -112,16 +112,18 @@ const Expense = () => {
         throw new Error('Network response was not ok');
       }
 
-      // Refresh the product list after successful DELETE
       fetchProducts();
     } catch (error) {
       console.error('Error deleting data:', error);
     }
   };
 
+  // Calculate the total expenses
+  const totalExpenses = expenses.reduce((total, expense) => total + expense.price, 0);
+
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
         <label htmlFor="price">Price:</label>
         <input type="number" id="price" name="price" required value={price} onChange={(e) => setPrice(e.target.value)} />
 
@@ -165,6 +167,11 @@ const Expense = () => {
           </li>
         ))}
       </ul>
+
+      {/* Conditional rendering of the "Activate Premium" button */}
+      {totalExpenses > 10000 && (
+        <button className="activate-premium-btn">Activate Premium</button>
+      )}
     </div>
   );
 };

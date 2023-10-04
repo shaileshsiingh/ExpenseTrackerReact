@@ -13,7 +13,7 @@ const CompleteProfile = () => {
         
         <div >
 
-            <ContactDetail />
+            <ContactDetail/>
         </div>
     </>
   )

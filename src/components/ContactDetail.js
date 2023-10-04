@@ -75,7 +75,7 @@ const ContactDetail = () => {
 
   useEffect(() => {
     getDataHandler();
-  }, []);
+  }, );
 
   return (
     <Fragment>

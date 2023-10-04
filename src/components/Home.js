@@ -2,9 +2,15 @@ import React, { useContext } from 'react';
 import AuthContext from '../store/auth-context';
 import { Link, useNavigate } from 'react-router-dom';
 import Expense from './Expense';
+import { useSelector,useDispatch } from 'react-redux';
+import { authAction } from '../store1/authReducer';
 
 function Home() {
   const authCtx = useContext(AuthContext);
+  const isAuth=useSelector(state=>state.auth.isAthenticated);
+  let dispatch = useDispatch()
+
+
   const history = useNavigate()
 //
 const url='https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyBfLmb22jB_vs7p6YsU4HJXnGiDP7Ftw9o'
@@ -35,7 +41,7 @@ const verifyEmailHandler=(e)=>{
   //
 
   const logoutHandler = () => {
-    authCtx.logOut(); // Call the logout function from AuthContext
+    dispatch(authAction.logout())
     history('/authentication')
   };
 
@@ -50,7 +56,7 @@ const verifyEmailHandler=(e)=>{
       <button type="submit" onClick={verifyEmailHandler}>
         Verify Email
       </button>
-      {authCtx.isLoggedIn ? (
+      {isAuth ? (
         <button onClick={logoutHandler}>Log Out</button>
       ) : (
         <>

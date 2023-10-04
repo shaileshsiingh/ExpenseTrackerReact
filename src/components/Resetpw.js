@@ -11,7 +11,7 @@ const ForgotPassword = () => {
   };
 
   const url =
-    'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyBfLmb22jB_vs7p6YsU4HJXnGiDP7Ftw9o'; // Replace with your API key
+    'https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key=AIzaSyBfLmb22jB_vs7p6YsU4HJXnGiDP7Ftw9o'; 
 
   const submitHandler = (e) => {
     e.preventDefault();
