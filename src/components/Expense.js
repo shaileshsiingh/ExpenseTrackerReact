@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { expAction } from '../store1/expenseReducer';
+import ThemeToggle from './ThemeToggle';
 
 const Expense = () => {
   const [price, setPrice] = useState('');
@@ -10,7 +11,7 @@ const Expense = () => {
   const [products, setProducts] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const dispatch = useDispatch();
-  const expenses = useSelector((state) => state.exp.expenses) || []; // Provide an empty array as the initial value
+  const expenses = useSelector((state) => state.expenses.items) || []; // Use 'expenses.items'
 
   useEffect(() => {
     fetchProducts();
@@ -33,6 +34,7 @@ const Expense = () => {
         }));
         setProducts(productArray);
 
+        // Dispatch the action with the productArray
         dispatch(expAction.addItemHandler(productArray));
       } else {
         setProducts([]);
@@ -121,9 +123,26 @@ const Expense = () => {
   // Calculate the total expenses
   const totalExpenses = expenses.reduce((total, expense) => total + expense.price, 0);
 
+  const downloadExpensesAsCSV = () => {
+    const csvData = expenses.map((expense) => {
+      return `${expense.date},${expense.description},${expense.amount}`;
+    });
+
+    const csvBlob = new Blob([csvData.join("\n")], { type: "text/csv" });
+
+    const csvUrl = URL.createObjectURL(csvBlob);
+    const downloadLink = document.createElement("a");
+    downloadLink.href = csvUrl;
+    downloadLink.download = "expenses.csv";
+
+    downloadLink.click();
+
+    URL.revokeObjectURL(csvUrl);
+  };
+
   return (
     <div>
-        <form onSubmit={handleSubmit}>
+       <form onSubmit={handleSubmit}>
         <label htmlFor="price">Price:</label>
         <input type="number" id="price" name="price" required value={price} onChange={(e) => setPrice(e.target.value)} />
 
@@ -150,27 +169,33 @@ const Expense = () => {
         <input type="submit" value={editingId ? 'Update' : 'Submit'} />
       </form>
 
+
       <h1>Products</h1>
 
       <ul>
         {products.map((product) => (
-          <li key={product.id}>
-            Price: {product.price} - Description: {product.description} - Item: {product.item} - Category: {product.category}
-            {editingId !== product.id ? (
-              <button className="edit-btn" onClick={() => handleEditClick(product.id)}>
-                Edit
-              </button>
-            ) : null}
-            <button className="delete-btn" onClick={() => handleDelete(product.id)}>
-              Delete
-            </button>
-          </li>
+           <li key={product.id}>
+           Price: {product.price} - Description: {product.description} - Item: {product.item} - Category: {product.category}
+           {editingId !== product.id ? (
+             <button className="edit-btn" onClick={() => handleEditClick(product.id)}>
+               Edit
+             </button>
+           ) : null}
+           <button className="delete-btn" onClick={() => handleDelete(product.id)}>
+             Delete
+           </button>
+         </li>
         ))}
       </ul>
 
       {/* Conditional rendering of the "Activate Premium" button */}
       {totalExpenses > 10000 && (
-        <button className="activate-premium-btn">Activate Premium</button>
+        <>
+          <button className="activate-premium-btn" onClick={downloadExpensesAsCSV}>
+            Download Expenses as CSV
+          </button>
+          <ThemeToggle />
+        </>
       )}
     </div>
   );
